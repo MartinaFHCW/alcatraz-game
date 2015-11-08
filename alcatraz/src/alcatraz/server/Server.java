@@ -268,6 +268,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			IServer IS = new Server();
                         LocateRegistry.createRegistry(1099);
 			Naming.rebind("rmi://" + ipAddress + ":1099/RegistrationService", IS);
+                        //test
 			
 			// success
 			System.out.println("RegistrationServer is up and running.");
