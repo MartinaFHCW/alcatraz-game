@@ -1,0 +1,4 @@
+spread muss zuerst heruntergeladen, konfiguriert und dann gestartet werden
+dann kann man sich per API zum lokalen spread server verbinden
+
+die anderen mitglieder müssen in der spread.conf definiert werden
