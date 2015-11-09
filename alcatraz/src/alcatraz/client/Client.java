@@ -19,6 +19,8 @@ import at.falb.games.alcatraz.api.Alcatraz;
 import at.falb.games.alcatraz.api.MoveListener;
 import at.falb.games.alcatraz.api.Player;
 import at.falb.games.alcatraz.api.Prisoner;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 
 public class Client extends UnicastRemoteObject implements IClient, MoveListener {
@@ -89,7 +91,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 			System.err.println("Registration threw Exception: "
 					+ ISe.getMessage());
 			ISe.printStackTrace();
-		} catch (Exception e) {
+		} catch (NotBoundException | MalformedURLException | RemoteException | IClientException e) {
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
@@ -98,7 +100,6 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	}
 
 	/**
-	 * @author max
 	 * @param p
 	 * @return Returns <b>true</b> if the RemotePlayer was successfully unregistered. <br>
 	 * Returns <b>false</b> if no such registered RemotePlayer exists.
@@ -110,12 +111,12 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 			IServer IS = (IServer) Naming.lookup("rmi://" + p.getServerAdr() + ":1099/RegistrationService");
 			System.out.print("Unregistration proceed...");
 			unregistrationSuccess = IS.unregister(p);
-			//System.out.println("");
+			System.out.println("Unregistration completed.");
 
 		} catch (IServerException ISe) {
 			System.err.println("Unregistration throw Exception: " + ISe.getMessage());
 			ISe.printStackTrace();
-		} catch (Exception e) {
+		} catch (NotBoundException | MalformedURLException | RemoteException e) {
 			System.err.println("Something did not work, see stack trace.");
 			e.printStackTrace();
 		}
@@ -126,8 +127,8 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	/**
 	 * publishes the Client-Remote-Objects so the moves of the game can be <br>
 	 * passed between the Players.
-	 *
-	 * @author max
+         * @param p
+         * @return 
 	 */
 	public static String publishObject(RemotePlayer p) {
 
@@ -146,7 +147,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 			System.out.println("Client Services started - (" + rmiUri + ")");
 			return rmiUri;
 
-		} catch (Exception e) {
+		} catch (RemoteException | MalformedURLException e) {
 			System.out.println("Error!");
 			e.printStackTrace();
 		}
@@ -160,6 +161,9 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 	// GAME STUFF
     
 	/**
+         * @param me
+         * @return 
+         * @throws java.rmi.RemoteException
 	 * @see alcatraz.IClient#startGame(java.util.ArrayList)
 	 */
 	@Override
@@ -193,6 +197,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		return true;
 	}
 
+        @Override
 	public void moveDone(Player player, Prisoner prisoner, int rowOrCol, int row, int col) {
 		System.out.println("moving " + prisoner + " to "
 				+ (rowOrCol == Alcatraz.ROW ? "row" : "col") + " "
@@ -206,7 +211,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 				while (! status ) {
 					try {
 						status = p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
-					} catch (Exception e) {
+					} catch (IClientException | RemoteException e) {
 						System.out.println("Sending move to " + p.getName() + " failed, retrying...");
 						// TODO: check 
 						// frame.getOutputArea().append("\n" + "player:  " + p.getName() + " was offline.");
@@ -220,6 +225,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
 		}
 	}
 
+        @Override
 	public void gameWon(Player player) {
 		System.out.println("Player " + player.getId() + " wins. You can now register for another game.");
 		

@@ -22,7 +22,9 @@ import alcatraz.IClientException;
 import alcatraz.IServer;
 import alcatraz.IServerException;
 import alcatraz.RemotePlayer;
+import java.net.UnknownHostException;
 import java.rmi.registry.LocateRegistry;
+import spread.SpreadException;
 
 public class Server extends UnicastRemoteObject implements IServer, AdvancedMessageListener {
 
@@ -31,10 +33,10 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	private static Server server;
 	
 	private int id = 0;
-	private String spreadHost = "localhost";
-	private String spreadGroup = "A3_Seidl";
+	private final String spreadHost = "localhost";
+	private final String spreadGroup = "A3_Seidl";
 	private SpreadGroup spreadSelf;
-	private SpreadConnection spread = new SpreadConnection();
+	private final SpreadConnection spread = new SpreadConnection();
 	
 
 	// ================================================================================
@@ -87,17 +89,22 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			spreadSelf = this.spread.getPrivateGroup();
 			return true;
 		} 
-		catch (Exception e) {
+		catch (UnknownHostException | SpreadException e) {
 			System.out.println("Spread error\n" +
 					"  Please make sure that the Spread Daemon is running" +
 					"  This error can also be caused by non-unique server IDs");
-			e.printStackTrace();
 			return false;
 		}
 	}
 
 	// Listener function
 	// This function is called when spread has notified us of a membership change
+        
+        /**
+         *
+         * @param msg
+         */
+        @Override
 	public void membershipMessageReceived(SpreadMessage msg) {
 		// extract the Membership information from the Spread message
 		MembershipInfo info = msg.getMembershipInfo();
@@ -192,6 +199,12 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	// Listener method
 	// This method is called when spread has passed us a regular message
+
+        /**
+         *
+         * @param message
+         */
+        @Override
 	public void regularMessageReceived(SpreadMessage message) {
 		// ignore messages that were sent by myself
 		if ( ! message.getSender().equals(this.spreadSelf) ) {
@@ -273,9 +286,8 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 			// success
 			System.out.println("RegistrationServer is up and running.");
 			
-		} catch (Exception e) {
+		} catch (UnknownHostException | RemoteException | MalformedURLException e) {
 			System.out.println("Error!");
-			e.printStackTrace();
 		}
 	}
 
@@ -283,13 +295,14 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 	// ================================================================================
 	// METHODS
 
-	/**
-	 * Registers a player on the Server.
-	 * @throws IClientException 
-	 * 
-	 * @see alcatraz.IServer#register(alcatraz.Player)
-	 */
-	@Override
+
+        /**
+         * Registers a player on the Server.
+         * @throws IClientException
+         * @throws java.rmi.RemoteException
+         * @see alcatraz.IServer#register(alcatraz.Player)
+         */
+        @Override
 	public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException {
 				
 		// check if the desired player name is free
@@ -324,7 +337,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 
 	/**
 	 * Unregisters a player from the server.
-	 * 
+         * @throws java.rmi.RemoteException
 	 * @see alcatraz.IServer#unregister(alcatraz.Player)
 	 * @author max
 	 */
@@ -392,9 +405,7 @@ public class Server extends UnicastRemoteObject implements IServer, AdvancedMess
 				playerList.remove(p);
 				sendObject(playerList);
 
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			} catch (NotBoundException e) {
+			} catch (MalformedURLException | NotBoundException e) {
 				e.printStackTrace();
 			}
 

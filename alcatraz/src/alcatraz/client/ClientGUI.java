@@ -17,6 +17,8 @@ import javax.swing.border.EmptyBorder;
 
 import alcatraz.RemotePlayer;
 import alcatraz.server.Server;
+import java.awt.event.WindowEvent;
+import javax.swing.JOptionPane;
 
 public class ClientGUI extends JFrame {
 
@@ -150,7 +152,6 @@ public class ClientGUI extends JFrame {
 		setOutputArea(new JTextArea()); 
 		getOutputArea().setEditable(false);
 		scrollPane.setViewportView(getOutputArea());
-
 	}
 
 	// ================================================================================
@@ -233,6 +234,11 @@ public class ClientGUI extends JFrame {
 	public void setOutputArea(JTextArea outputArea) {
 		this.outputArea = outputArea;
 	}
-	
-	
+        
+        public void windowClosing(WindowEvent e) throws InterruptedException
+        {
+            // can do cleanup here if necessary
+            this.showMessage("Hello");
+            contentPane.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        }        
 }
