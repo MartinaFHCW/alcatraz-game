@@ -5,15 +5,35 @@ import at.falb.games.alcatraz.api.Prisoner;
 
 import java.io.*;
 
+/**
+ * 
+ * @author Azimikhah
+ * @author Bichler
+ * @author Seidl
+ */
 public class Move implements Serializable {
     
-	private static final long serialVersionUID = 9L;
-	private Player player;
-	private Prisoner prisoner;
-	private int rowOrCol;
-	private int row;
-	private int col;
+    // ================================================================================
+    // ================================================================================
+    // GLOBAL VARIABLES
+    private static final long serialVersionUID = 9L;
+    private Player player;
+    private Prisoner prisoner;
+    private int rowOrCol;
+    private int row;
+    private int col;
 
+    // ================================================================================
+    // ================================================================================
+    // CONSTRUCTOR
+    /**
+     * This constructor sets the informations about the move
+     * @param player
+     * @param prisoner
+     * @param rowOrCol
+     * @param row
+     * @param col 
+     */
     public Move(Player player, Prisoner prisoner, int rowOrCol, int row, int col) 
     {
         this.player   = player;

@@ -3,28 +3,29 @@ package alcatraz;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * This is the interface for the client to bind the Server via RMI
+ * @author Azimikhah
+ * @author Bichler
+ * @author Seidl
+ */
 public interface IServer extends Remote {
-
-  /**
-   * 
-   * @param p a player object
-   * @return Returns <b>true</b> if the RemotePlayer was successfully registered. <br>
-   * Returns <b>false</b> if the registration failed.
-   * @throws IServerException
-   * @throws RemoteException
-   * @throws IClientException 
-   */
-  public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException;
-  
-  /**
-   * 
-   * @param p a player object
-   * @return Returns <b>true</b> if the RemotePlayer was successfully unregistered. <br>
-   * Returns <b>false</b> if no such registered RemotePlayer exists.
-   * @throws IServerException
-   * @throws RemoteException
-   */
-  public boolean unregister(RemotePlayer p) throws IServerException, RemoteException;
-  
-  
+    /**
+     * Interface - registers a player on the registration server
+     * @param p a player object to register
+     * @return true if the RemotePlayer was successfully registered, false if the registration failed
+     * @throws IServerException
+     * @throws RemoteException
+     * @throws IClientException 
+     */
+    public boolean register(RemotePlayer p) throws IServerException, RemoteException, IClientException;
+    
+    /**
+     * Interface - unregisters a player from the server
+     * @param p a player object to unregister
+     * @return true if the RemotePlayer was successfully unregistered, false if no such registered RemotePlayer exists
+     * @throws IServerException
+     * @throws RemoteException
+     */
+    public boolean unregister(RemotePlayer p) throws IServerException, RemoteException;
 }
