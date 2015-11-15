@@ -17,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 
 import alcatraz.RemotePlayer;
 import alcatraz.server.Server;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
 
@@ -155,6 +156,18 @@ public class ClientGUI extends JFrame {
         setOutputArea(new JTextArea()); 
         getOutputArea().setEditable(false);
         scrollPane.setViewportView(getOutputArea());
+        
+        this.addWindowListener(new WindowAdapter(){
+            public void windowClosing(WindowEvent e){
+                int i = JOptionPane.showConfirmDialog(null, "Möchten Sie das Spiel wirklich beenden?");
+                if(i==0){
+                    //if the player is already registered, he gets unregistered and the application will be closed
+                    if(Client.registrationStatus() != 0)
+                        Client.unregisterPlayer(p);
+                    System.exit(0);
+                }
+            }
+        });
     }
 
     /**
@@ -236,5 +249,5 @@ public class ClientGUI extends JFrame {
         //can do cleanup here if necessary
         this.showMessage("Hello");
         contentPane.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-    }        
+    }
 }

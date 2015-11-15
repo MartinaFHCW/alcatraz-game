@@ -41,6 +41,8 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
     private int myId;
     private ArrayList<RemotePlayer> playerList = new ArrayList<RemotePlayer>();
     static int startgameInt = 0;
+    private static int registered = 0;
+    private static boolean rmiRegistry = false;
     
     // ================================================================================
     // ================================================================================
@@ -119,6 +121,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
             System.out.print("Unregistration proceed...");
             //calls the unregister method on the server interface (overridden from registration server)
             unregistrationSuccess = IS.unregister(p);
+            try { Naming.unbind("rmi://" + p.getServerAdr() + ":1099/RegistrationService"); } catch (Exception e) { }
             System.out.println("Unregistration completed.");
 
         } catch (IServerException ISe) {
@@ -146,11 +149,13 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
                     System.out.println("Couldn't find out my IP - are you connected to a network?");
                     return null;
             }
-
+            
             //generates the RMI name in URL format for the player to be published
             String rmiUri = "rmi://" + ip + ":1099/" + p.getName();
-            //creates and exports a registry instance on the player/client that accepts requests on port 1099
-            LocateRegistry.createRegistry(1099);
+            if(rmiRegistry == false){
+                //creates and exports a registry instance on the player/client that accepts requests on port 1099
+                LocateRegistry.createRegistry(1099);
+            }
             //binds the specified name (rmi://<ipaddress>:1099/<playerName>) to a new remote object (client interface)
             Naming.rebind(rmiUri, p.getIC());
             System.out.println("Client Services started - (" + rmiUri + ")");
@@ -239,16 +244,29 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
             }
             else {
                 boolean status = false;
+                //initializes timeout counter for retrying when sending failed
+                int timeoutcounter = 0;
                 while (! status ) {
                     try {
+                        //increases counter for timeout
+                        timeoutcounter++;
                         //calls method for doing the move on the other player too
                         status = p.getIC().doMoveRemote(player, prisoner, rowOrCol, row, col);
                     } catch (IClientException | RemoteException e) {
+                        //if client is not responding to do the move, is will be tried for 5 minutes
                         System.out.println("Sending move to " + p.getName() + " failed, retrying...");
-                        // TODO: wenn Client nicht mehr zurück kommt => timeout einbauen????
-                        // frame.getOutputArea().append("\n" + "player:  " + p.getName() + " was offline.");
+                        //if timeout of 10 retries elapsed, player will be removed of player list and sending will be stopped
+                        if (timeoutcounter == 10){
+                            //calls method to unregister remote player
+                            unregisterPlayer(p);
+                            //if this is a game with 2 players and the other player's not reachable, the remaining player wins automatically
+                            /**if(this.playerList.size() == 2)
+                                this.gameWon(player);*/
+                            status = true;
+                        }
                         try{
-                                Thread.sleep(1000);
+                            //waits 5 seconds before retrying to send the move
+                            Thread.sleep(5000);
                         }
                         catch(InterruptedException ie){ }
                     }
@@ -313,5 +331,9 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
         frame.showMessage(msg);
         if (console)
             System.out.println(msg);
+    }
+    
+    public static int registrationStatus(){
+        return registered;
     }
 }
