@@ -94,6 +94,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
                             + ")\n");
             //calls the register method on the server interface (overridden from registration server)
             registerSuccess = IS.register(p);
+            registered = 1;
 
         } catch (IServerException ISe) {
             System.err.println("Registration threw Exception: "
@@ -121,6 +122,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
             System.out.print("Unregistration proceed...");
             //calls the unregister method on the server interface (overridden from registration server)
             unregistrationSuccess = IS.unregister(p);
+            registered = 0;
             /*try {
                 Naming.unbind("rmi://" + p.getServerAdr() + ":1099/RegistrationService"); 
             } catch (Exception e) { 
