@@ -121,7 +121,11 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
             System.out.print("Unregistration proceed...");
             //calls the unregister method on the server interface (overridden from registration server)
             unregistrationSuccess = IS.unregister(p);
-            try { Naming.unbind("rmi://" + p.getServerAdr() + ":1099/RegistrationService"); } catch (Exception e) { }
+            /*try {
+                Naming.unbind("rmi://" + p.getServerAdr() + ":1099/RegistrationService"); 
+            } catch (Exception e) { 
+                System.out.println("Error on unbinding RMI service!"+e.getMessage());
+            }*/
             System.out.println("Unregistration completed.");
 
         } catch (IServerException ISe) {
@@ -155,6 +159,7 @@ public class Client extends UnicastRemoteObject implements IClient, MoveListener
             if(rmiRegistry == false){
                 //creates and exports a registry instance on the player/client that accepts requests on port 1099
                 LocateRegistry.createRegistry(1099);
+                rmiRegistry = true;
             }
             //binds the specified name (rmi://<ipaddress>:1099/<playerName>) to a new remote object (client interface)
             Naming.rebind(rmiUri, p.getIC());
